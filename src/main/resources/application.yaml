@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: prompt-config
+  cloud:
+    config:
+      server:
+        git:
+          uri: git@github.com:promptCommunity/configs.git
+          passphrase: ${MY_PRIVATE_KEY}
+          ignore-local-ssh-settings: false
+server:
+  port: 9000
+
+private:
+  key:
+    id: '{cipher}6a54da4c22f8900fd237a57326ea3ce38205f77a2cb8e8555afeacaa520b27d3'
+    pwd: '{cipher}10f841f3d157a667ce99ccb3977e792c8ba4b7ef7aa7e3c8b2bfa2a4b7aea2f0'
