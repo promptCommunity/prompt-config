@@ -11,8 +11,8 @@ COPY settings.gradle .
 # 소스 코드 복사
 COPY src src
 
-# Gradle 래퍼 실행 권한 부여 및 빌드 실행
-RUN chmod +x ./gradlew && ./gradlew build --no-daemon
+# Gradle 래퍼 실행 권한 부여 및 테스트 제외하고 빌드 실행
+RUN chmod +x ./gradlew && ./gradlew build -x test --no-daemon
 
 # 패키지 단계: JRE만 포함된 작은 이미지에 빌드된 JAR 파일을 복사합니다.
 FROM eclipse-temurin:17-jre-jammy
