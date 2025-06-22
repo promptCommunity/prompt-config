@@ -5,7 +5,7 @@ spring:
     config:
       server:
         git:
-          uri: git@github.com:promptCommunity/configs.git
+          uri: ${PRIVATE_GIT_CONFIG_FILE}
           passphrase: ${MY_PRIVATE_KEY}
           ignore-local-ssh-settings: false
 server:
