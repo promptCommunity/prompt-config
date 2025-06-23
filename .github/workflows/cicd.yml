@@ -14,8 +14,6 @@ jobs:
       # 1. 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v4
-#        with:
-#          path: /home/yeongbee/promptpj
       
       # 2. JDK 17 설정
       - name: Set up JDK 17
@@ -26,58 +24,52 @@ jobs:
       
       # 3. Gradle 캐시 설정
       - name: Cache Gradle packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
       
-      # 4. Gradle 빌드
+      # 4. Gradle 빌드 (테스트 제외)
       - name: Build with Gradle
         run: ./gradlew build -x test --no-daemon
-        working-directory: /home/yeongbee/promptpj
       
-      # 5. Docker Hub 로그인
+      # 5. Docker Hub 로그인 (main 브랜치 push 시에만 실행)
       - name: Login to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       
-      # 6. Docker 이미지 빌드 및 푸시
+      # 6. Docker 이미지 빌드 및 푸시 (main 브랜치 push 시에만 실행)
       - name: Build and push Docker image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/build-push-action@v5
         with:
-          context: /home/yeongbee/promptpj
+          context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/prompt-config:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/prompt-config:${{ github.sha }}, ${{ secrets.DOCKER_USERNAME }}/prompt-config:latest
       
-      # 7. 서버 배포 (SSH를 통한 배포)
+      # 7. 서버 배포 (main 브랜치 push 시에만 실행)
       - name: Deploy to server
-        uses: appleboy/ssh-action@master
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT }}
           script: |
-            # 기존 컨테이너 중지 및 제거
-            docker-compose down || true
-            
-            # 최신 이미지 풀
-            docker pull ${{ secrets.DOCKER_USERNAME }}/prompt-config:latest
-            
-            # docker-compose 파일이 있는 디렉토리로 이동
+            # 이 경로는 실제 배포 서버의 프로젝트 경로여야 합니다.
             cd /home/yeongbee/promptpj
             
-            # 환경변수 설정 (필요시)
             export MY_PRIVATE_ENCRYPT_KEY2="${{ secrets.MY_PRIVATE_ENCRYPT_KEY2 }}"
             export MY_PRIVATE_KEY="${{ secrets.MY_PRIVATE_KEY }}"
+            export IMAGE_TAG=${{ github.sha }}
             
-            # 컨테이너 시작
+            docker-compose down || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/prompt-config:${{ github.sha }}
             docker-compose up -d
-            
-            # 사용하지 않는 이미지 정리
             docker image prune -f
-#1
