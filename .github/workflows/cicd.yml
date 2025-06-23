@@ -61,15 +61,15 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT }}
+          passphrase: ${{ secrets.SERVER_KEY_PASSPHRASE }} # SSH 키 암호 추가
           script: |
             # 이 경로는 실제 배포 서버의 프로젝트 경로여야 합니다.
             cd /home/yeongbee/promptpj
             
             export MY_PRIVATE_ENCRYPT_KEY2="${{ secrets.MY_PRIVATE_ENCRYPT_KEY2 }}"
             export MY_PRIVATE_KEY="${{ secrets.MY_PRIVATE_KEY }}"
-            export IMAGE_TAG=${{ github.sha }}
             
             docker-compose down || true
-            docker pull ${{ secrets.DOCKER_USERNAME }}/prompt-config:${{ github.sha }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}
             docker-compose up -d
             docker image prune -f
