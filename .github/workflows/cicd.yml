@@ -76,4 +76,4 @@ jobs:
             docker pull ${{ secrets.DOCKER_USERNAME }}/prompt-config:latest
             docker compose up -d
             docker image prune -f
-#11
+#12
