@@ -63,7 +63,6 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           passphrase: ${{ secrets.SERVER_KEY_PASSPHRASE }} # SSH 키 암호 추가
           script: |
-            # 이 경로는 실제 배포 서버의 프로젝트 경로여야 합니다.
             cd /home/yeongbee/promptpj
             
             export MY_PRIVATE_ENCRYPT_KEY2="${{ secrets.MY_PRIVATE_ENCRYPT_KEY2 }}"
