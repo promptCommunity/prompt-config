@@ -68,8 +68,11 @@ jobs:
             export MY_PRIVATE_ENCRYPT_KEY2="${{ secrets.MY_PRIVATE_ENCRYPT_KEY2 }}"
             export MY_PRIVATE_KEY="${{ secrets.MY_PRIVATE_KEY }}"
             
-            docker-compose down || true
-            docker pull ${{ secrets.DOCKER_USERNAME }}
-            docker-compose up -d
+            # Docker 로그인
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+            
+            # Docker Compose v2 명령어 사용 (공백 포함)
+            docker compose down || true
+            docker pull ${{ secrets.DOCKER_USERNAME }}/prompt-config:latest
+            docker compose up -d
             docker image prune -f
-#5
